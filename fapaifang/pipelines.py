@@ -33,7 +33,5 @@ class MongoDBPipeline(object):
                 log.msg("Houses Add To MongoDB Successfully!", level=log.DEBUG, spider=spider)
                 return item
 
-    def process_open(self, item, spider):
-        print(item)
-        pass
+    
 
