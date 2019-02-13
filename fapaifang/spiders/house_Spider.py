@@ -7,7 +7,7 @@ from ..items import FapaifangItem
 
 class HouseSpiderSpider(scrapy.Spider):
     name = 'house_Spider'
-    allowed_domains = ['zc-paimai.taobao.com', '203.119.244.127:80']
+    allowed_domains = ['zc-paimai.taobao.com', '203.119.244.127:80', '203.119.212.1:80', 'sf-item.taobao.com']
     start_urls = ['https://sf.taobao.com/item_list.htm?spm=a213w.7398504.miniNav.9.29ed2564P9uofu&auction_source=0'
                   '&city=%B3%C9%B6%BC&sorder=1&end_price=1000000&st_param=-1&support'
                   '_loans=1&no_buy_restrictions=1&auction_start_seg=-1']
@@ -28,14 +28,15 @@ class HouseSpiderSpider(scrapy.Spider):
             time_stamp = i.get('start')
             time_array = time.localtime(time_stamp/1000)
             item['time_start'] = time.strftime("%Y-%m-%d %H:%M:%S", time_array)
-            yield scrapy.Request('https:' + item['item_url'], meta={'item': copy.deepcopy(item)}, callback=self.parse_detail, dont_filter=True)
+            yield scrapy.Request('https:' + item['item_url'], meta={'item': copy.deepcopy(item)},
+                                 callback=self.parse_detail, dont_filter=True)
 
         info = response.xpath("//div[@class='pagination J_Pagination']/a[@class='next']/@href").extract_first()
         if info:
             next_link = "".join(info.split())
             yield scrapy.Request('https:' + next_link, callback=self.parse, dont_filter=True)
 
-        # yield item
+        # yield copy.deepcopy(item)
 
     def parse_detail(self, response):
         item = response.meta['item']
@@ -43,7 +44,20 @@ class HouseSpiderSpider(scrapy.Spider):
         item['price_increase'] = response.xpath("//tbody[@id='J_HoverShow']/tr[1]/td[2]/span[2]/span/text()")\
             .extract_first()
         item['itemAddress'] = response.xpath("//div[@id='itemAddressDetail']/text()").extract_first()
-        yield copy.deepcopy(item)
+        text_link = response.xpath("//div[@id='J_NoticeDetail']/@data-from").extract_first()
+        yield scrapy.Request('https:' + text_link, meta={'item': copy.deepcopy(item)},
+                             callback=self.parse_text_link, dont_filter=True)
+        # print(item)
+        # yield copy.deepcopy(item)
+
+    def parse_text_link(self, response):
+        item = response.meta['item']
+        text = response.xpath("//body").extract_first()
+        # detail = json.loads(text[14:20])
+        print(text)
+
+
+        #yield copy.deepcopy(item)
 
 
 
