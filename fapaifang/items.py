@@ -18,4 +18,5 @@ class FapaifangItem(scrapy.Item):
     bond = scrapy.Field()      # 保证金
     price_increase = scrapy.Field()     # 加价幅度
     itemAddress = scrapy.Field()    # 地址
+    area = scrapy.Field()       # 建筑面积
 

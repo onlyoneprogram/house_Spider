@@ -3,6 +3,7 @@ import scrapy
 import json
 import time
 import copy
+import re
 from ..items import FapaifangItem
 
 class HouseSpiderSpider(scrapy.Spider):
@@ -53,11 +54,10 @@ class HouseSpiderSpider(scrapy.Spider):
     def parse_text_link(self, response):
         item = response.meta['item']
         text = response.xpath("//body").extract_first()
-        # detail = json.loads(text[14:20])
-        print(text)
-
-
-        #yield copy.deepcopy(item)
+        index = text[14:-9].find("建筑面积")+len("建筑面积")
+        detail = text[14:-9][index:index+80]
+        item['area'] = ''.join(re.findall('\d+[\\.*]?\\d*', detail))
+        yield copy.deepcopy(item)
 
 
 
